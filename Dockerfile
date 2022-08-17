@@ -1,3 +1,3 @@
 # syntax=docker/dockerfile:1
-FROM scratch
+FROM amazonlinux:latest
 CMD ["echo", "Hello World!"]
