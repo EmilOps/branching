@@ -5,7 +5,7 @@ COPY ./requirements.txt /tmp/requirements.txt
 
 RUN yum -y update &&\
     amazon-linux-extras install python3 &&\
-    python -m venv /py && \
+    python3 -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     rm -rf /tmp
