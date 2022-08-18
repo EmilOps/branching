@@ -30,13 +30,13 @@ jobs:
 
       - name: Build an image from Dockerfile - Main
         run: |
-          docker build -t docker.io/main:${{ github.sha }} .
+          docker build -t docker.images/main:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner - Main
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
           ignore-unfixed: true
-          image-ref: 'docker.io/main:${{ github.sha }}'
+          image-ref: 'docker.images/main:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results-main.sarif'
           severity: 'CRITICAL,HIGH'
@@ -50,13 +50,13 @@ jobs:
 
       - name: Build an image from Dockerfile - Subproject
         run: |
-          docker build -t docker.io/my-organization/my-app:${{ github.sha }} -f subproject/Dockerfile ./subproject
+          docker build -t docker.images/subproject:${{ github.sha }} -f subproject/Dockerfile ./subproject
 
       - name: Run Trivy vulnerability scanner - Subproject
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
           ignore-unfixed: true
-          image-ref: 'docker.io/subproject:${{ github.sha }}'
+          image-ref: 'docker.images/subproject:${{ github.sha }}'
           format: 'sarif'
           output: 'trivy-results-subproject.sarif'
           severity: 'CRITICAL,HIGH'
