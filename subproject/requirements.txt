@@ -1,0 +1,6 @@
+Flask
+Flask-RESTful
+gunicorn
+psycopg2-binary
+Flask-SQLAlchemy
+boto3
