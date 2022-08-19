@@ -68,22 +68,22 @@ jobs:
           sarif_file: 'trivy-results-subproject.sarif'
           category: 'subproject file scan'
 
-      - name: Build an image from Dockerfile - nodeJsHelloWorld
+      - name: Build an image from Dockerfile - nodejshelloworld
         run: |
-          docker build -t docker.images/nodeJsHelloWorld:${{ github.sha }} -f nodeJsHelloWorld/Dockerfile ./nodeJsHelloWorld
+          docker build -t docker.images/nodejshelloworld:${{ github.sha }} -f nodejshelloworld/Dockerfile ./nodejshelloworld
 
-      - name: Run Trivy vulnerability scanner - nodeJsHelloWorld
+      - name: Run Trivy vulnerability scanner - nodejshelloworld
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
           ignore-unfixed: true
-          image-ref: 'docker.images/nodeJsHelloWorld:${{ github.sha }}'
+          image-ref: 'docker.images/nodejshelloworld:${{ github.sha }}'
           format: 'sarif'
-          output: 'trivy-results-nodeJsHelloWorld.sarif'
+          output: 'trivy-results-nodejshelloworld.sarif'
           severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy scan results to GitHub Security tab - nodeJsHelloWorld
+      - name: Upload Trivy scan results to GitHub Security tab - nodejshelloworld
         uses: github/codeql-action/upload-sarif@v2
         if: always()
         with:
-          sarif_file: 'trivy-results-nodeJsHelloWorld.sarif'
-          category: 'nodeJsHelloWorld file scan'
+          sarif_file: 'trivy-results-nodejshelloworld.sarif'
+          category: 'nodejshelloworld file scan'
