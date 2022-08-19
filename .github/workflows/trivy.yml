@@ -1,0 +1,89 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: build
+
+on:
+  push:
+    branches: [ "dev", "main", "*feature*" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "dev", "main", "*feature*" ]
+  schedule:
+    - cron: '31 13 * * 5'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    name: Build
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build an image from Dockerfile - Main
+        run: |
+          docker build -t docker.images/main:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner - Main
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        with:
+          ignore-unfixed: true
+          image-ref: 'docker.images/main:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results-main.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab - Main
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results-main.sarif'
+          category: 'main file scan'
+
+      - name: Build an image from Dockerfile - Subproject
+        run: |
+          docker build -t docker.images/subproject:${{ github.sha }} -f subproject/Dockerfile ./subproject
+
+      - name: Run Trivy vulnerability scanner - Subproject
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        with:
+          ignore-unfixed: true
+          image-ref: 'docker.images/subproject:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results-subproject.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab - Subproject
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results-subproject.sarif'
+          category: 'subproject file scan'
+
+      - name: Build an image from Dockerfile - nodejshelloworld
+        run: |
+          docker build -t docker.images/nodejshelloworld:${{ github.sha }} -f nodejshelloworld/Dockerfile ./nodejshelloworld
+
+      - name: Run Trivy vulnerability scanner - nodejshelloworld
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        with:
+          ignore-unfixed: true
+          image-ref: 'docker.images/nodejshelloworld:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results-nodejshelloworld.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab - nodejshelloworld
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results-nodejshelloworld.sarif'
+          category: 'nodejshelloworld file scan'
