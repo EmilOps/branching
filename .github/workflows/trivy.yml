@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: build
+name: Security Scan
 
 on:
   push:
@@ -18,11 +18,11 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  backend:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-    name: Build
+    name: Backend
     runs-on: "ubuntu-20.04"
     steps:
       - name: Checkout code
@@ -67,6 +67,16 @@ jobs:
         with:
           sarif_file: 'trivy-results-subproject.sarif'
           category: 'subproject file scan'
+  
+  frontend:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    name: Frontend
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Build an image from Dockerfile - nodejshelloworld
         run: |
