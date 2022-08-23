@@ -1,0 +1,49 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Security Scan
+
+on:
+  push:
+    branches: [ "dev", "main", "*feature*", "*release*" ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ "dev", "main", "*feature*", "*release*" ]
+  # schedule:
+  #   - cron: '31 13 * * 5'
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+    name: Frontend
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build an image from Dockerfile - nodejshelloworld
+        run: |
+          docker build -t docker.images/nodejshelloworld:${{ github.sha }} -f nodejshelloworld/Dockerfile ./nodejshelloworld
+
+      - name: Run Trivy vulnerability scanner - nodejshelloworld
+        uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
+        with:
+          ignore-unfixed: true
+          image-ref: 'docker.images/nodejshelloworld:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results-nodejshelloworld.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab - nodejshelloworld
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results-nodejshelloworld.sarif'
+          category: 'nodejshelloworld file scan'
